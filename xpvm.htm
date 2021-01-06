@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+   <meta http-equiv="X-UA-Compatible" content="IE=edge" charset="utf-8"/>
+   <link rel="stylesheet" href="main.css"/>
+   <title>Setting up a new board with Windows 8 or later</title>
+</head>
+<body>
+<h1>
+   Configuration d'une nouvelle carte avec Windows 8 ou version ultérieure
+</h1>
+
+<div>
+
+   <p>
+      Oui, je sais à quel point c'est fou de devoir trouver une vielle
+      Machine Windows pour mettre à jour un tout nouveau KL25Z. Malheureusement, le
+	  le micrologiciel d'usine installé sur les nouvelles cartes KL25Z a été écrit lorsque
+	  Windows 7 était à jour et Microsoft a apporté des modifications à Windows 8 est
+	  incompatibles avec cet ancien firmware.
+   </p>
+
+   <p>
+	  <b>Une fois la mise à niveau terminée, le KL25Z fonctionnera avec Windows 8
+	  et versions ultérieures. </b> Mais c'est un catch-22, car vous ne pouvez pas
+      effectuer la mise à niveau qui le fait fonctionner avec Windows 8 ou 10 à partir de
+	  Windows 8 ou 10!
+   </p>
+
+   <p>
+	  Le moyen le plus simple de résoudre ce problème est de trouver une vieille machine
+	  exécutant Windows 7 ou XP. Mais s'il n'y a aucun moyen de faire ça,
+	  il existe deux solutions. Les deux nécessitent un travail supplémentaire,
+	  mais ils vous permettront de faire la mise à niveau avec votre machine existante.
+   </p>
+
+   <h2>Option 1: Ajustez votre système Win 8/10</h2>
+
+   <p>
+	  L'incompatibilité du micrologiciel dans Windows 8+ est liée aux
+	  fonctionnalités de recherche de disque que Microsoft a ajoutées à Windows 8.
+	  Lorsque vous branchez un disque USB, Windows écrit automatiquement sur le
+	  disque pour créer un fichier d'index de recherche caché. L'ancienne version de la KL25Z
+	  le fichier de démarrage confond cela avec une tentative d'installation d'un nouveau firmware
+	  sur l'appareil. Mais comme le fichier d'index n'est pas un firmware valide
+	  le fichier de démarrage le rejette, ce qui le met en mode erreur où il refuse d'accepter
+	  d'autres demandes. Cela bloque toutes tentatives ultérieures de télécharger des fichiers
+	  de micrologiciel légitimes.
+   </p>
+
+   <p>
+	  Une façon de résoudre ce problème consiste à désactiver l'indexation de la recherche Windows
+	  service qui cause le problème. Cela nécessite de déconner avec les paramètres de votre
+	  système Windows, donc si RegEdit vous rend mal à l'aise, vous voudrez peut-être ignorer
+	  cette approche et essayer une autre option.
+   </p>
+
+   <p>
+	  Cette méthode a été décrite pour la première fois (pour autant que je sache) par
+	  Erich Styger sur son <a target="_blank" href="https://mcuoneclipse.com/2016/08/01/bricking_and_recovering_opensda_boards_in_windows_8_and_10/">MCU sur son blog Eclipse</a>.
+	  Veuillez consulter cet article pour une explication plus approfondie.
+   </p>
+
+   <p>Voici les étapes:</p>
+
+   <ul>
+	  <li>Désactivez les périphériques amovibles pour la recherche dans la bibliothèque Windows:
+	  <ul>
+		 <li>Si vous disposez d'une version "Professionnelle" de Windows:
+		 <ul>
+			<li>Appuyez sur Windows + R
+			<li> Tapez gpedit.msc dans la zone et appuyez sur entrer
+			<li> Accédez à Configuration ordinateur & gt; Modèles d'administration & gt;
+				 Composants Windows & gt; Rechercher & gt; Ne pas autoriser l'ajout d'emplacements sur des lecteurs amovibles aux bibliothèques
+			<li> Activer le paramètre (qui, à la manière standard de Microsoft, désactive la fonctionnalité)
+		 </ul>
+
+		 <li>Si vous disposez d'une version "Familiale" de Windows:
+		 <ul>
+			<li>Appuyez sur Windows + S
+			<li> Tapez regedit dans le champ de recherche - <b> n’appuyez pas </b> sur entrer
+			<li> Une correspondance pour <b> regedit </b> doit apparaître; cliquez dessus avec le bouton droit et sélectionnez <b> Exécuter en tant qu'administrateur </b>
+			<li>Naviguez a HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search
+			<li>Définir l'élément DisableRemovableDriveIndexing à valeur 1
+		 </ul>
+	  </ul>
+
+	  <li>Désactivez les services de recherche:
+	  <ul>
+		 <li>Appuyez sur Windows + S
+		 <li>Saisissez les services dans la case
+		 <li>Sélectionnez "Afficher les services locaux"
+		 <li>Trouvez "Storage Service" dans la liste; clic droit dessus et sélectionner arreter
+		 <li>Trouvez «Windows Search» dans la liste; cliquez dessus avec le bouton droit et sélectionnez Arrêter
+	  </ul>
+   </ul>
+
+   <p>
+	  Vous êtes maintenant prêt à tenter la mise à jour du micrologiciel sur le KL25Z.
+	  Attention cependant: vous devez effectuer la copie du fichier <b> le plus rapidement possible </b>
+	  après avoir branché le KL25Z. Apparemment, les étapes ci-dessus empêchent
+	  l'écriture du lecteur juste après l'avoir branché, mais Windows peut encore essayer de faire
+	  une écriture si vous laissez le lecteur branché assez longtemps.
+	  Vous devriez donc essayer d’agir rapidement.
+   </p>
+
+   <p>
+	  En dehors de cette course contre la montre, la mise à niveau elle-même fonctionne comme
+	  dans les instructions principales.
+
+   <ul>
+	  <li>Maintenez le bouton de réinitialisation sur le KL25Z enfoncé et branchez le port de programmation
+	  <li> Relâchez le bouton de réinitialisation
+	  <li> Faites glisser et déposez la mise à jour du micrologiciel sur le KL25Z
+	  <li> Dès que le processus de copie est terminé, débranchez la clé USB
+   </ul>
+
+   <p>Vous pouvez maintenant vérifier la mise à niveau. Rebranchez le port de programmation (sans
+	  en appuyant sur le bouton Reset). La clé USB KL25Z devrait apparaître. Ouvrez le
+	  fichier SDA_INFO.HTM. Vérifiez que la version du micrologiciel rapportée correspond à ce que vous
+	  venez juste de télécharger.
+   </p>
+
+   <h2>Option 2: exécuter XP ou Win 7 dans une machine virtuelle</h2>
+
+   <p>
+	  Si vous ne souhaitez pas modifier les paramètres de votre système
+      décrit ci-dessus, ou vous ne pouvez pas faire fonctionner cette approche, vous pouvez
+	  résoudre le problème de mise à niveau en exécutant une copie <b> virtuelle </b> de
+	  XP ou Windows 7 sur votre système d'exploitation existant. Cette approche
+	  est assez compliqué, mais cela ne nécessite aucune modification de votre
+	  paramètres du système et ne nécessite aucune synchronisation particulière.
+   </p>
+
+   <p>
+      La première chose à faire est d ’<b> imprimer les instructions </b>
+      que l'outil de configuration Pinscape affiche pour effectuer la mise à jour du firmware.
+      L'outil de configuration ne fonctionnera pas sous XP. Ce n'est pas grave, 
+      de toute façon, l'outil ne fait vraiment rien pendant le processus de mise à jour
+      sauf afficher les instructions. Mais vous ne pouvez pas l'exécuter pour afficher le
+      instructions dans XP, vous voudrez donc en avoir une copie à portée de main avant de
+      débuter. Pour ce faire, accédez à la page "Configurer une nouvelle KL25Z", cliquez sur
+      après l'avertissement sur les versions de Windows, puis cliquez sur «Tout afficher».
+      Vous pouvez maintenant imprimer la page (il y a un bouton en bas pour faire ça).
+	  Si vous avez une configuration à deux moniteurs, pas besoin d'imprimer;
+      laissez simplement les instructions sur un écran pendant que vous exécutez la VM XP
+      sur l'autre écran.
+   </p>
+
+   <p>
+      La prochaine étape consiste à télécharger et installer <b> VirtualBox </b>, qui
+      est un gestionnaire de machine virtuelle gratuit. Commencer ici:
+      <a target="_blank" href="http://www.virtualbox.org">virtualbox.org<a>.
+      Téléchargez la dernière version et suivez la procédure d'installation pour
+      installer le produit sur votre ordinateur.
+   </p>
+
+   <p>
+      Nous arrivons maintenant à la partie vraiment chronophage et difficile. vous avez
+      besoin de créer une machine virtuelle XP ou Win 7 pour VirtualBox. Il y a
+      essentiellement deux options pour ce faire:
+   </p>
+
+   <ul>
+
+      <li><b>Avec un CD d'installation XP ou Win7: </b> Si vous avez une ancienne copie
+      de XP ou 7 sur CD, vous pouvez l'utiliser pour installer ce système d'exploitation
+      sur une nouvelle machine virtuelle. Pour ce faire, exécutez VirtualBox et cliquez sur
+      le bouton "Nouveau" de la barre d'outils. Suivez les étapes pour créer
+      une nouvelle VM, en sélectionnant le type de système d'exploitation approprié (XP ou 7) dans la liste
+      lorsqu'on lui a demandé. Lorsque vous démarrez la machine, vous serez invité à
+      insérez votre CD de démarrage Windows dans le CD. La machine virtuelle
+      suivra ensuite la procédure d'installation normale de Windows.
+      Cela fonctionne comme installer Windows sur du matériel réel, et c'est
+      tout aussi long et fastidieux.
+
+      <li><b>Avec une image prédéfinie: </b> Microsoft fournit actuellement
+      images prédéfinies de Windows 7 conçues pour permettre aux développeurs web
+	  de tester par rapport aux anciennes versions d'IE. L'URL pour cela
+      semble se déplacer fréquemment, donc je vais vous demander de faire un Web
+      recherche: "machines virtuelles gratuites de Microsoft". Cherchez un
+      lien microsoft.com dans les résultats - tout le reste est susceptible d'être
+      soit un site warez ou un site de didacticiel tiers avec un lien plus ancien
+	  (comme je l'ai dit, Microsoft continue de déplacer les URL).
+      La page Microsoft que nous recherchons est en fait un outil pour le Web
+      les développeurs qui souhaitent tester leurs sites par rapport aux anciennes versions d'IE.
+      Pour faciliter cette tâche aux développeurs Web, Microsoft fournit des
+      machines virtuelles avec les anciennes versions d'IE toutes configurées. Mais ils vont
+      travailler pour nos fins également bien. Il vous sera demandé de sélectionner
+      lequel vous souhaitez télécharger, en sélectionnant une version IE, un
+      Version Windows, et une «plate-forme». Sélectionnez <b> Windows 7 </b> ou
+      plus tôt pour la version Windows. La version IE n'a pas d'importance.
+      Sélectionnez <b> VirtualBox </b> pour la plate-forme. Une fois que vous faites votre
+      sélections, la page doit vous proposer un fichier à télécharger et
+      instructions d'installation. Téléchargez le fichier, lisez et suivez
+      les instructions. Vous devriez avoir une machine virtuelle Windows 7 fonctionnelle en cours d'exécution
+      dans VirtualBox lorsque vous avez terminé.
+   </ul>
+
+   <p>
+      Une fois que votre machine virtuelle XP / 7 est en cours d'exécution, arrêtez-la
+      en allant dans le menu Démarrer dans la fenêtre du système d'exploitation virtuel et
+      cliquez sur Arrêter l'ordinateur. Attendez que la VM s'arrête.
+      La fenêtre VM se fermera une fois l'opération terminée.
+   </p>
+
+   <p>
+      Revenez maintenant à la fenêtre du gestionnaire de VM VirtualBox. Clic-droit
+      la VM dans la liste et sélectionnez Paramètres. Dans la fenêtre Paramètres,
+      sélectionnez la page USB. Il devrait y avoir une case à cocher en haut étiquetée
+      "Activer le contrôleur USB". Assurez-vous qu'il est coché.
+   </p>
+
+   <p>
+      Branchez le KL25Z via le port <b> programmation </b>. Clique le
+      Bouton "+" à côté de la liste "Filtres de périphériques USB". Vous devriez
+      voir une entrée dans la liste déroulante commençant par "PE Microcomputer Systems Inc".
+      C'est le port de programmation KL25Z. Cliquez dessus pour l'ajouter au
+      liste. Cliquez sur OK.
+   </p>
+
+   <p>
+      Débranchez le KL25Z.
+   </p>
+
+   <p>
+      Lancez la VM en double-cliquant dessus. Attendez que le démarrage se termine.
+      La fenêtre du bureau XP / Win 7 devrait s'afficher et le disque doit être
+	  terminé lors des tâches de démarrage.
+      Branchez maintenant le KL25Z. Si tout s'est bien passé, cela devrait apparaître
+      sur le bureau XP / 7 et <b> pas </b> sur votre vrai Windows bureau.
+   </p>
+
+   <p>
+      Maintenant, sortez cette impression que nous avons faite au début de
+      tout ce bordel! Suivez les instructions pour télécharger et
+      installez le premier fichier .SDA <b> dans la boîte XP / 7 </b>.
+   </p>
+
+   <p>
+      À ce stade des instructions imprimées, il vous sera demandé de
+      débranchez et rebranchez le KL25Z. Les choses deviennent un peu floues ici.
+      Vous <i> pourriez </i> avoir besoin d'ajouter un nouveau filtre USB VirtualBox.
+      Essayez de rebrancher le KL25Z et voyez quel bureau il se connecte.
+      S'il se connecte au bureau XP / 7, tout va bien. S'il se connecte à votre
+	  bureau Windows habituel, accédez au Menu du périphérique USB dans les commandes
+	  de VirtualBox, recherchez l'élément "PE Microcomputer Systems" non coché et le vérifier.
+      Après l'avoir vérifié, débranchez le KL25Z et rebranchez-le.
+      Cette fois, il se connectera, espérons-le, au bureau XP / 7
+      plutôt que votre bureau ordinaire. Sinon, vous pourriez avoir
+      pour arrêter la VM et répéter le processus de filtre USB, nous
+      fait plus tôt dans la boîte de dialogue Paramètres de VirtualBox.
+   </p>
+
+   <p>
+      Une fois que vous avez terminé toute la procédure dans XP / 7
+      VM, déconnectez le KL25Z et arrêtez la VM (utilisez «Désactiver
+      ordinateur "dans le menu Démarrer de la fenêtre VM, et attendez
+      pour que la fenêtre VM se ferme). Rebranchez maintenant le KL25Z,
+      via le port <b> programmation </b>.
+   </p>
+
+   <p>
+      Si tout s'est bien passé, vous devriez avoir un lecteur sur votre bureau 
+	  Windows intitulé <b> FRDM-KL25Z </b>. L'étiquette du lecteur est très
+      important. Si c'est FRDM-KL25Z, tout a fonctionné et l'appareil doit 
+	  être prêt à être utilisé dans votre Windows moderne.
+      Si l'étiquette <i> n'est pas </i> FRDM-KL25Z, quelque chose doit avoir
+	  mal tourné quelque part en cours de route. Essayez d'y aller
+      de nouveau à travers le processus ci-dessus. Si vous ne pouvez pas l'obtenir
+      travailler après avoir soigneusement répété toutes les étapes, postez sur
+      vpforums.org et j'espère que moi ou quelqu'un d'autre pourra vous aider
+	  à résoudre les problèmes.
+   </p>
+      
+
+</div>
+
+</body>
+</html>
